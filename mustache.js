@@ -30,7 +30,7 @@ var Mustache = function() {
           return template;
         } else {
           this.send(template);
-          return;
+          return undefined;
         }
       }
 
@@ -41,13 +41,14 @@ var Mustache = function() {
       }
 
       this.render_tags(html, context, partials, in_recursion);
+      return undefined;
     },
 
     /*
       Sends parsed lines
     */
     send: function(line) {
-      if(line != "") {
+      if(line !== "") {
         this.buffer.push(line);
       }
     },
@@ -196,9 +197,7 @@ var Mustache = function() {
           '/', '.', '*', '+', '?', '|',
           '(', ')', '[', ']', '{', '}', '\\'
         ];
-        arguments.callee.sRE = new RegExp(
-          '(\\' + specials.join('|\\') + ')', 'g'
-        );
+        arguments.callee.sRE = new RegExp('(\\' + specials.join('|\\') + ')', 'g');
       }
       return text.replace(arguments.callee.sRE, '\\$1');
     },
