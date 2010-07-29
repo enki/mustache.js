@@ -206,7 +206,7 @@ var Mustache = function() {
       find `name` in current `context`. That is find me a value
       from the view object
     */
-    find: function(name, context) {
+    find: function(name, context, rest) {
       name = this.trim(name);
 
       // Checks whether a value is thruthy or false or 0
@@ -220,21 +220,45 @@ var Mustache = function() {
       } else if(is_kinda_truthy(this.context[name])) {
         value = this.context[name];
       }
+      
+      // if (rest){
+      //     value = [value,rest].join('.');
+      // }
 
-      if(typeof value === "function") {
+      if (typeof value === "function") {
         return value.apply(context);
       }
-      if(value !== undefined) {
+      if (value !== undefined) {
         return value;
       }
-      // silently ignore unkown variables
-      return "";
+      
+      namesplit = name.split('.');
+      var part1 = namesplit.slice(0,1)[0];
+      var newrest = namesplit.slice(1).join('.');
+      var newcontext = context[part1];
+      
+      if ( (namesplit.length < 2) || (!newcontext) ) {
+          if (newcontext !== undefined) {
+              return newcontext;
+          } else {
+              console.log('UNKNOWN VARIABLE ', name, '-',value,'-', part1, '-',newrest,'-', newcontext);
+              return "";
+          }
+      }
+      return this.find(newrest, newcontext);
+      
+      // // silently ignore unknown variables
+      // return "";
     },
 
     // Utility methods
 
     /* includes tag */
     includes: function(needle, haystack) {
+        if (!haystack) {
+            console.log('need a haystack! (template)');
+            return false;
+        }
       return haystack.indexOf(this.otag + needle) != -1;
     },
 
